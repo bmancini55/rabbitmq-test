@@ -9,11 +9,13 @@ async function run() {
 
   let content = new Buffer(q);
 
+  await ch.assertExchange(q, 'direct', { durable: false });
   await ch.assertQueue(q, { durable: false });
+  await ch.bindQueue(q, q);
 
   let start = new Date();
   for(let i=0; i<1000000; i++) {
-    ch.sendToQueue(q, content);
+    ch.publish(q, '', content);
   }
   ch.on('error', console.log);
   conn.on('error', console.log);
@@ -22,7 +24,7 @@ async function run() {
     console.log(stop - start);
   });
 
-
 };
 
 run().catch(console.log);
+
